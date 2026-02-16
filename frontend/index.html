@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATSReady — Coming Soon</title>
+    <meta name="description" content="Stop getting auto-rejected by applicant tracking systems. ATSReady converts your resume into an ATS-friendly format in 60 seconds. Launching soon.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0f0f12;
+            --paper: #faf9f7;
+            --sage: #4a6741;
+            --sage-light: #e8ede6;
+            --dim: #6b6a6a;
+            --border: #ddd9d3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 48px;
+            animation: fadeUp 0.6s ease-out;
+        }
+        .logo span { color: var(--sage); }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 900;
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.15;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            animation: fadeUp 0.6s ease-out 0.1s both;
+        }
+        h1 em {
+            font-style: italic;
+            color: var(--sage);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--dim);
+            max-width: 440px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            animation: fadeUp 0.6s ease-out 0.2s both;
+        }
+
+        .email-form {
+            display: flex;
+            gap: 10px;
+            max-width: 420px;
+            width: 100%;
+            animation: fadeUp 0.6s ease-out 0.3s both;
+        }
+
+        .email-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1.5px solid var(--border);
+            border-radius: 100px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            background: white;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .email-input:focus {
+            border-color: var(--sage);
+        }
+        .email-input::placeholder {
+            color: #b0afae;
+        }
+
+        .notify-btn {
+            padding: 14px 24px;
+            background: var(--ink);
+            color: white;
+            border: none;
+            border-radius: 100px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .notify-btn:hover {
+            background: var(--sage);
+            transform: translateY(-1px);
+        }
+
+        .success-msg {
+            display: none;
+            color: var(--sage);
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-top: 16px;
+            animation: fadeUp 0.3s ease-out;
+        }
+        .success-msg.visible { display: block; }
+
+        footer {
+            position: fixed;
+            bottom: 24px;
+            font-size: 0.78rem;
+            color: var(--dim);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 500px) {
+            .email-form {
+                flex-direction: column;
+            }
+            .notify-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo">ATS<span>Ready</span></div>
+
+    <h1>Stop getting rejected<br>by <em>robots</em></h1>
+
+    <p class="subtitle">We're building a tool that converts your resume into an ATS-friendly format in 60 seconds. Launching soon — leave your email and we'll let you know.</p>
+
+    <div class="email-form" id="emailForm">
+        <input type="email" class="email-input" id="emailInput" placeholder="you@email.com" required>
+        <button class="notify-btn" onclick="handleNotify()">Notify me</button>
+    </div>
+
+    <p class="success-msg" id="successMsg">You're on the list. We'll be in touch.</p>
+
+    <footer>&copy; 2026 ATSReady</footer>
+
+<script>
+    function handleNotify() {
+        const input = document.getElementById('emailInput');
+        const email = input.value.trim();
+
+        if (!email || !email.includes('@')) {
+            input.focus();
+            return;
+        }
+
+        /*
+         * ══════════════════════════════════════════════════
+         * EMAIL CAPTURE OPTIONS:
+         *
+         * Option 1 — Free Formspree (easiest, no backend):
+         *   Replace this function body with:
+         *   fetch('https://formspree.io/f/YOUR_FORM_ID', {
+         *       method: 'POST',
+         *       headers: { 'Content-Type': 'application/json' },
+         *       body: JSON.stringify({ email: email })
+         *   });
+         *   Sign up free at formspree.io, create a form,
+         *   and paste your form ID above.
+         *
+         * Option 2 — Google Sheet via Make.com:
+         *   POST to a Make.com webhook that appends to
+         *   a Google Sheet. Free tier covers this easily.
+         *
+         * Option 3 — Buttondown / Mailchimp:
+         *   Use their free-tier embedded form or API.
+         * ══════════════════════════════════════════════════
+         */
+
+        // For now, just show success (wire up capture later)
+        document.getElementById('emailForm').style.display = 'none';
+        document.getElementById('successMsg').classList.add('visible');
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('emailInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleNotify();
+    });
+</script>
+
+</body>
+</html>

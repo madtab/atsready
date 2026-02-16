@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATSReady — Get Past the Robots. Land the Interview.</title>
+    <meta name="description" content="Convert your PDF resume into an ATS-optimised format in 60 seconds. Stop getting auto-rejected by applicant tracking systems. Just £7.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0f0f12;
+            --paper: #faf9f7;
+            --cream: #f3f1ec;
+            --sage: #4a6741;
+            --sage-light: #e8ede6;
+            --sage-glow: #5d8a50;
+            --rust: #c4553a;
+            --dim: #6b6a6a;
+            --border: #ddd9d3;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── GRAIN OVERLAY ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ── NAVIGATION ── */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+        }
+        .logo span { color: var(--sage); }
+        .nav-cta {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-cta:hover { background: var(--sage); }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: var(--sage-light);
+            color: var(--sage);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            animation: fadeUp 0.6s ease-out;
+        }
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 900;
+            font-size: clamp(2.4rem, 6vw, 3.6rem);
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.6s ease-out 0.1s both;
+        }
+        .hero h1 em {
+            font-style: italic;
+            color: var(--sage);
+            position: relative;
+        }
+        .hero h1 em::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--sage-light);
+            z-index: -1;
+            border-radius: 4px;
+        }
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--dim);
+            max-width: 520px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            animation: fadeUp 0.6s ease-out 0.2s both;
+        }
+
+        /* ── STAT STRIP ── */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 64px;
+            animation: fadeUp 0.6s ease-out 0.3s both;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--sage);
+            letter-spacing: -1px;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--dim);
+            letter-spacing: 0.3px;
+            margin-top: 2px;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--sage);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 48px;
+        }
+
+        .steps {
+            padding: 64px 0;
+        }
+        .step-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .step {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            padding: 28px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.3s;
+        }
+        .step:hover {
+            border-color: var(--sage);
+            box-shadow: 0 4px 24px rgba(74, 103, 65, 0.06);
+        }
+        .step-num {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--cream);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--sage);
+        }
+        .step-content h3 {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+        }
+        .step-content p {
+            color: var(--dim);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ── CONVERTER SECTION ── */
+        .converter-section {
+            padding: 64px 0 80px;
+        }
+        .converter-box {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 48px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .converter-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--sage), var(--sage-glow), var(--sage));
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px 24px;
+            margin-bottom: 28px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--sage);
+            background: var(--sage-light);
+        }
+        .upload-zone.has-file {
+            border-color: var(--sage);
+            background: var(--sage-light);
+            border-style: solid;
+        }
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            background: var(--cream);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--sage);
+        }
+        .upload-text {
+            font-weight: 500;
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+        .upload-sub {
+            font-size: 0.85rem;
+            color: var(--dim);
+        }
+        .file-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-name {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            color: var(--sage);
+        }
+        .file-name svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--sage);
+        }
+        .file-name.visible {
+            display: flex;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .price {
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 2.2rem;
+            color: var(--ink);
+            letter-spacing: -1px;
+        }
+        .price-note {
+            font-size: 0.85rem;
+            color: var(--dim);
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .pay-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--ink);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 100px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            width: 100%;
+            max-width: 360px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pay-btn:hover:not(:disabled) {
+            background: var(--sage);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(74, 103, 65, 0.2);
+        }
+        .pay-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .pay-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        .pay-note {
+            font-size: 0.78rem;
+            color: var(--dim);
+            margin-top: 14px;
+        }
+        .pay-note a {
+            color: var(--dim);
+            text-decoration: underline;
+        }
+
+        /* ── WHAT YOU GET ── */
+        .features {
+            padding: 48px 0 64px;
+            border-top: 1px solid var(--border);
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .feature {
+            padding: 24px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+        .feature h4 {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .feature p {
+            font-size: 0.85rem;
+            color: var(--dim);
+            line-height: 1.5;
+        }
+
+        /* ── FAQ ── */
+        .faq {
+            padding: 64px 0;
+            border-top: 1px solid var(--border);
+        }
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+        }
+        .faq-q {
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-q::after {
+            content: '+';
+            font-size: 1.3rem;
+            color: var(--dim);
+            transition: transform 0.2s;
+        }
+        .faq-item.open .faq-q::after {
+            transform: rotate(45deg);
+        }
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: var(--dim);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+        .faq-item.open .faq-a {
+            max-height: 200px;
+            padding-top: 12px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--dim);
+        }
+        footer a { color: var(--dim); }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── TEST MODE ── */
+        .test-banner {
+            display: none;
+            background: #fef3c7;
+            border-bottom: 2px solid #f59e0b;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #92400e;
+        }
+        .test-banner code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        body.test-mode .test-banner { display: block; }
+        body.test-mode .pay-btn {
+            background: #b45309;
+        }
+        body.test-mode .pay-btn:hover:not(:disabled) {
+            background: #92400e;
+            box-shadow: 0 6px 24px rgba(180, 83, 9, 0.2);
+        }
+        body.test-mode .price-row { display: none; }
+
+        .results-panel {
+            display: none;
+            margin-top: 32px;
+            text-align: left;
+            animation: fadeUp 0.4s ease-out;
+        }
+        .results-panel.visible { display: block; }
+        .results-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .score-circle {
+            flex-shrink: 0;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fraunces', serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .score-circle.good { background: var(--sage); }
+        .score-circle.ok { background: #d97706; }
+        .score-circle.bad { background: var(--rust); }
+        .results-title {
+            font-family: 'Fraunces', serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .results-subtitle {
+            color: var(--dim);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+        .results-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+        }
+        .results-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--cream);
+            font-size: 0.92rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .results-list li .icon {
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .results-list li.pass .icon { color: var(--sage); }
+        .results-list li.fail .icon { color: var(--rust); }
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--sage);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .download-btn:hover {
+            background: var(--sage-glow);
+            transform: translateY(-1px);
+        }
+        .download-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .results-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            color: #991b1b;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        .test-again-btn {
+            display: inline-block;
+            margin-top: 16px;
+            background: none;
+            border: 1px solid var(--border);
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            color: var(--dim);
+            transition: all 0.2s;
+        }
+        .test-again-btn:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .stats { gap: 24px; flex-wrap: wrap; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .converter-box { padding: 32px 20px; }
+            .step { flex-direction: column; gap: 12px; }
+            .price-row { flex-direction: column; gap: 4px; }
+            .price-note { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Test Mode Banner -->
+<div class="test-banner">
+    ⚠ TEST MODE — Payment bypassed, converting directly &nbsp;
+    <code>?test=true</code>
+</div>
+
+<!-- Navigation -->
+<nav>
+    <div class="container">
+        <div class="logo">ATS<span>Ready</span></div>
+        <a href="#convert" class="nav-cta">Convert Now — £7</a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">Used by 2,400+ job seekers</div>
+        <h1>Your resume is getting<br><em>rejected by robots</em></h1>
+        <p class="hero-sub">75% of resumes are automatically filtered out by Applicant Tracking Systems before a human ever reads them. We fix that in 60 seconds.</p>
+    </div>
+</section>
+
+<!-- Stats -->
+<div class="container">
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-number">75%</div>
+            <div class="stat-label">Resumes auto-rejected</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">60s</div>
+            <div class="stat-label">Conversion time</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">£7</div>
+            <div class="stat-label">One-time fee</div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<section class="steps">
+    <div class="container">
+        <div class="section-label">How it works</div>
+        <h2 class="section-title">Three steps. No account needed.</h2>
+        <div class="step-grid">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Upload your current resume</h3>
+                    <p>Drop your existing PDF resume — any format, any template, any design.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Pay £7 securely</h3>
+                    <p>Card, Apple Pay, or Google Pay via Stripe. No subscription, no account, no hidden fees.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Get your ATS-ready .docx in your inbox</h3>
+                    <p>Receive a clean, ATS-optimised resume plus a readability score within minutes. Upload it directly to job applications.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Converter -->
+<section class="converter-section" id="convert">
+    <div class="container">
+        <div class="converter-box">
+            <div class="section-label">Ready?</div>
+            <h2 class="section-title" style="margin-bottom: 32px;">Convert your resume now</h2>
+
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" class="file-input" id="fileInput" accept=".pdf">
+                <div class="upload-icon">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                </div>
+                <div class="upload-text" id="uploadText">Drop your PDF resume here or click to browse</div>
+                <div class="upload-sub" id="uploadSub">PDF files only • Max 5MB</div>
+                <div class="file-name" id="fileName">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="fileNameText"></span>
+                </div>
+            </div>
+
+            <div class="price-row">
+                <div class="price">£7</div>
+                <div class="price-note">One-time payment<br>Results emailed instantly</div>
+            </div>
+
+            <!-- STRIPE — Replace YOUR_STRIPE_PAYMENT_LINK with your actual Stripe Payment Link URL -->
+            <button class="pay-btn" id="payBtn" disabled onclick="handlePayment()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                Convert Now — £7
+            </button>
+
+            <p class="pay-note">
+                Secure payment via Stripe • Card, Apple Pay &amp; Google Pay accepted<br>
+                Result emailed within 5 minutes •
+                <a href="mailto:hello@atsready.co.uk">hello@atsready.co.uk</a>
+            </p>
+
+            <!-- Test Mode Results Panel -->
+            <div class="results-panel" id="resultsPanel">
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What You Get -->
+<section class="features">
+    <div class="container">
+        <div class="section-label">What you get</div>
+        <h2 class="section-title">More than just a format change</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <div class="feature-icon">📄</div>
+                <h4>ATS-Optimised .docx File</h4>
+                <p>Clean, single-column layout with standard fonts that every ATS can parse reliably.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <h4>Readability Score</h4>
+                <p>See exactly how ATS-friendly your resume is, with specific issues flagged and explained.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h4>Instant Delivery</h4>
+                <p>No waiting for a freelancer. Your optimised resume hits your inbox within minutes.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h4>Private & Secure</h4>
+                <p>Your resume is processed automatically and deleted immediately. No human ever sees it.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+    <div class="container">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Common questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">What is an ATS and why does it matter?</div>
+            <div class="faq-a">An Applicant Tracking System is software used by most employers to automatically screen resumes before a recruiter ever sees them. If your resume uses fancy formatting, columns, tables, or graphics, the ATS often can't read it properly — and your application gets rejected regardless of your qualifications.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Why can't I just save my resume as a .docx myself?</div>
+            <div class="faq-a">Simply converting the file format isn't enough. ATS systems struggle with multi-column layouts, text boxes, headers/footers, and decorative elements. Our tool restructures your content into a proven single-column format with proper heading hierarchy that ATS parsers reliably understand.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">How fast will I receive my converted resume?</div>
+            <div class="faq-a">Typically within 2-5 minutes of payment confirmation. The conversion is fully automated — no human in the loop means no waiting.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Is my data safe?</div>
+            <div class="faq-a">Yes. Your uploaded PDF is processed by our automated system and deleted immediately after conversion. No human views your resume, and we don't store any personal data beyond what's needed to deliver your result.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">What if my PDF is image-based (scanned)?</div>
+            <div class="faq-a">Our tool works best with PDFs that contain selectable text. If your resume is a scanned image, the text extraction will be limited. In that case, we'll let you know and offer a full refund.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Can I get a refund?</div>
+            <div class="faq-a">If for any reason the conversion doesn't work properly — for example if your PDF is image-based — we'll refund you in full, no questions asked. Email us at hello@atsready.co.uk.</div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p>&copy; 2026 ATSReady. All rights reserved. Built in the UK.</p>
+    </div>
+</footer>
+
+<script>
+    // ══════════════════════════════════════════════════════
+    // CONFIGURATION
+    // ══════════════════════════════════════════════════════
+
+    // Your Flask API URL (PythonAnywhere or Railway)
+    const API_URL = 'http://127.0.0.1:5000';
+
+    // Your Stripe Payment Link
+    const STRIPE_LINK = 'https://buy.stripe.com/YOUR_LINK_HERE';
+
+    // API key (must match what's set in your Flask app)
+    const API_KEY = 'your-secret-key-change-this';
+
+    // ══════════════════════════════════════════════════════
+
+    // ── Test Mode Detection ──
+    const isTestMode = new URLSearchParams(window.location.search).get('test') === 'true';
+    if (isTestMode) {
+        document.body.classList.add('test-mode');
+        // Update button text
+        document.getElementById('payBtn').innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Test Convert (free)
+        `;
+    }
+
+    // ── File Upload Logic ──
+    const fileInput = document.getElementById('fileInput');
+    const uploadZone = document.getElementById('uploadZone');
+    const uploadText = document.getElementById('uploadText');
+    const uploadSub = document.getElementById('uploadSub');
+    const fileName = document.getElementById('fileName');
+    const fileNameText = document.getElementById('fileNameText');
+    const payBtn = document.getElementById('payBtn');
+
+    let selectedFile = null;
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type === 'application/pdf') {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Please upload a PDF under 5MB.');
+                return;
+            }
+            selectedFile = file;
+            uploadZone.classList.add('has-file');
+            uploadText.style.display = 'none';
+            uploadSub.style.display = 'none';
+            document.querySelector('.upload-icon').style.display = 'none';
+            fileName.classList.add('visible');
+            fileNameText.textContent = file.name;
+            payBtn.disabled = false;
+
+            // Reset results if testing again
+            document.getElementById('resultsPanel').classList.remove('visible');
+        }
+    });
+
+    // Drag and drop
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type === 'application/pdf') {
+            fileInput.files = e.dataTransfer.files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // ── Payment / Test Handler ──
+    function handlePayment() {
+        if (!selectedFile) {
+            alert('Please upload your resume first.');
+            return;
+        }
+
+        if (isTestMode) {
+            runTestConversion();
+        } else {
+            window.location.href = STRIPE_LINK;
+        }
+    }
+
+    // ── Test Mode: Direct API Conversion ──
+    async function runTestConversion() {
+        const resultsPanel = document.getElementById('resultsPanel');
+        const resultsContent = document.getElementById('resultsContent');
+
+        // Show loading state
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<span class="spinner"></span> Converting…';
+        resultsPanel.classList.remove('visible');
+
+        try {
+            // Step 1: Send PDF to the conversion API
+            const formData = new FormData();
+            formData.append('resume', selectedFile);
+
+            const response = await fetch(`${API_URL}/convert`, {
+                method: 'POST',
+                headers: { 'X-API-Key': API_KEY },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                // Try to get error JSON
+                let errMsg = `Server returned ${response.status}`;
+                try {
+                    const errData = await response.json();
+                    errMsg = errData.error || errMsg;
+                } catch(e) {}
+                throw new Error(errMsg);
+            }
+
+            // Step 2: Get the .docx blob and score from headers
+            // Since the Flask API returns the file directly on success,
+            // we need a slightly different approach for test mode.
+            // We'll call a /convert-with-score endpoint that returns JSON + file.
+            // For now, we'll use a two-step approach:
+            // First call /score for the JSON, then /convert for the file.
+
+            // Actually, the simplest approach: capture the blob for download,
+            // and make a second request for just the score.
+            const docxBlob = await response.blob();
+
+            // Step 3: Get the score (second request)
+            const scoreFormData = new FormData();
+            scoreFormData.append('resume', selectedFile);
+
+            let scoreData = null;
+            try {
+                const scoreResp = await fetch(`${API_URL}/score`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY },
+                    body: scoreFormData,
+                });
+                if (scoreResp.ok) {
+                    scoreData = await scoreResp.json();
+                }
+            } catch(e) {
+                // Score endpoint might not exist yet — that's fine
+            }
+
+            // Step 4: Build the download URL
+            const downloadUrl = URL.createObjectURL(docxBlob);
+
+            // Step 5: Render results
+            renderResults(resultsContent, scoreData, downloadUrl);
+            resultsPanel.classList.add('visible');
+
+        } catch (err) {
+            resultsContent.innerHTML = `
+                <div class="results-error">
+                    <strong>Conversion failed</strong><br>
+                    ${err.message}<br><br>
+                    Make sure your Flask API is running at <code>${API_URL}</code><br>
+                    <small>Start it with: <code>python -m flask --app app run</code></small>
+                </div>
+                <button class="test-again-btn" onclick="resetTest()">Try another file</button>
+            `;
+            resultsPanel.classList.add('visible');
+        }
+
+        // Restore button
+        payBtn.disabled = false;
+        payBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Test Convert (free)
+        `;
+    }
+
+    function renderResults(container, scoreData, downloadUrl) {
+        let scoreHtml = '';
+
+        if (scoreData) {
+            const score = scoreData.score;
+            const tier = score >= 80 ? 'good' : score >= 50 ? 'ok' : 'bad';
+            const tierLabel = score >= 80 ? 'ATS-Ready' : score >= 50 ? 'Needs Improvement' : 'Major Issues';
+
+            let checklistHtml = '';
+            if (scoreData.passed) {
+                scoreData.passed.forEach(item => {
+                    checklistHtml += `<li class="pass"><span class="icon">✓</span> ${item}</li>`;
+                });
+            }
+            if (scoreData.issues) {
+                scoreData.issues.forEach(item => {
+                    checklistHtml += `<li class="fail"><span class="icon">✗</span> ${item}</li>`;
+                });
+            }
+
+            scoreHtml = `
+                <div class="results-header">
+                    <div class="score-circle ${tier}">${score}</div>
+                    <div>
+                        <div class="results-title">${tierLabel}</div>
+                        <div class="results-subtitle">${scoreData.word_count} words • ${scoreData.sections_detected} sections detected</div>
+                    </div>
+                </div>
+                <ul class="results-list">${checklistHtml}</ul>
+            `;
+        } else {
+            scoreHtml = `
+                <div class="results-header">
+                    <div class="score-circle good">✓</div>
+                    <div>
+                        <div class="results-title">Conversion Successful</div>
+                        <div class="results-subtitle">Add a <code>/score</code> endpoint to see detailed results here</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = `
+            ${scoreHtml}
+            <a href="${downloadUrl}" download="ats_optimised_resume.docx" class="download-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download ATS-Optimised Resume
+            </a>
+            <button class="test-again-btn" onclick="resetTest()">Test another file</button>
+        `;
+    }
+
+    function resetTest() {
+        // Reset everything for another test
+        selectedFile = null;
+        fileInput.value = '';
+        uploadZone.classList.remove('has-file');
+        uploadText.style.display = '';
+        uploadSub.style.display = '';
+        document.querySelector('.upload-icon').style.display = '';
+        fileName.classList.remove('visible');
+        payBtn.disabled = true;
+        document.getElementById('resultsPanel').classList.remove('visible');
+        uploadZone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ── FAQ Toggle ──
+    function toggleFaq(el) {
+        const item = el.parentElement;
+        item.classList.toggle('open');
+    }
+</script>
+
+</body>
+</html>
