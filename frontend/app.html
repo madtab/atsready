@@ -828,11 +828,20 @@
     // Your Flask API URL (PythonAnywhere or Railway)
     const API_URL = 'http://127.0.0.1:5000';
 
-    // Your Stripe Payment Link
+    // Your Stripe Payment Link (base URL without parameters)
     const STRIPE_LINK = 'https://buy.stripe.com/YOUR_LINK_HERE';
 
     // API key (must match what's set in your Flask app)
     const API_KEY = 'your-secret-key-change-this';
+
+    // Uploadcare public key (get from Uploadcare Dashboard → API Keys)
+    // Sign up free at uploadcare.com → create a project → copy the public key
+    const UPLOADCARE_PUBLIC_KEY = 'YOUR_UPLOADCARE_PUBLIC_KEY';
+
+    // Your Uploadcare CDN subdomain (find in Dashboard → Delivery)
+    // For accounts created before Sep 2025, use 'ucarecdn.com'
+    // For newer accounts, it'll be something like 'yourproject.ucarecd.net'
+    const UPLOADCARE_CDN = 'ucarecdn.com';
 
     // ══════════════════════════════════════════════════════
 
@@ -909,7 +918,56 @@
         if (isTestMode) {
             runTestConversion();
         } else {
-            window.location.href = STRIPE_LINK;
+            uploadAndPay();
+        }
+    }
+
+    // ── Production: Upload to Uploadcare → Redirect to Stripe ──
+    async function uploadAndPay() {
+        // Show uploading state
+        payBtn.disabled = true;
+        const originalBtnHtml = payBtn.innerHTML;
+        payBtn.innerHTML = '<span class="spinner"></span> Uploading…';
+
+        try {
+            // Step 1: Upload the PDF to Uploadcare
+            const formData = new FormData();
+            formData.append('UPLOADCARE_PUB_KEY', UPLOADCARE_PUBLIC_KEY);
+            formData.append('UPLOADCARE_STORE', 'auto');
+            formData.append('file', selectedFile);
+
+            const uploadResp = await fetch('https://upload.uploadcare.com/base/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!uploadResp.ok) {
+                throw new Error('File upload failed. Please try again.');
+            }
+
+            const uploadData = await uploadResp.json();
+            const fileUUID = uploadData.file;
+
+            if (!fileUUID) {
+                throw new Error('Upload succeeded but no file ID returned.');
+            }
+
+            // The file is now available at:
+            // https://{CDN}/{UUID}/{original_filename}
+            // Make.com will download from this URL after payment
+
+            // Step 2: Redirect to Stripe with the file UUID as client_reference_id
+            // This UUID arrives in the checkout.session.completed webhook
+            // so Make.com can reconstruct the download URL
+            const separator = STRIPE_LINK.includes('?') ? '&' : '?';
+            const stripeUrl = `${STRIPE_LINK}${separator}client_reference_id=${fileUUID}`;
+
+            window.location.href = stripeUrl;
+
+        } catch (err) {
+            alert(err.message);
+            payBtn.disabled = false;
+            payBtn.innerHTML = originalBtnHtml;
         }
     }
 

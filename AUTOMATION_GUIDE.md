@@ -8,13 +8,17 @@
 ```
 User visits site → Uploads PDF → Clicks "Convert Now" button
     ↓
-Stripe Checkout opens → User pays £7 (card, Apple Pay, Google Pay)
+PDF uploaded to Uploadcare → gets file UUID
+    ↓
+Stripe Checkout opens (UUID passed as client_reference_id)
+    ↓
+User pays £7 (card, Apple Pay, Google Pay)
     ↓
 Stripe fires webhook → Make.com scenario triggers
     ↓
-Make.com: Retrieves uploaded PDF → Calls Python conversion API
+Make.com: Downloads PDF from Uploadcare CDN using UUID
     ↓
-Script produces: ATS-optimised .docx + JSON score report
+Make.com: Sends PDF to Railway API → gets ATS-optimised .docx
     ↓
 Make.com: Emails customer the .docx + score summary
 ```
@@ -29,6 +33,7 @@ Make.com: Emails customer the .docx + score summary
 | Hosting (static site)    | Free         | Netlify, Cloudflare Pages, or Vercel     |
 | Make.com (automation)    | Free tier    | 1,000 operations/month free              |
 | Stripe account           | Free         | Takes 1.5% + 20p per UK card transaction |
+| Uploadcare (file storage)| Free tier    | 3,000 uploads/month, 3GB storage         |
 | Python hosting (script)  | Free–£5/mo   | PythonAnywhere free tier, or Railway.app |
 | Email sending            | Free         | Gmail SMTP or Make.com built-in          |
 | **TOTAL SETUP**          | **~£8–£15**  | Well under £100 budget                   |
@@ -206,44 +211,65 @@ The webhook payload includes:
 - `payment_intent` — payment reference
 - `metadata` — any custom data you attached (e.g., file reference)
 
-#### Module 2: Retrieve the Uploaded PDF
+#### Module 2: Retrieve the Uploaded PDF (via Uploadcare)
 
-For the MVP, the simplest approach is this two-part flow:
+**How the file gets from the user to Make.com:**
 
-**How the file gets to you:**
+The frontend code in `app.html` handles this automatically. Here's what
+happens when a user clicks "Convert Now":
 
-On the website, after the user selects their file and clicks "Convert Now",
-the flow is:
+1. JavaScript uploads the PDF to **Uploadcare** via their Upload API.
+2. Uploadcare returns a **file UUID** (e.g., `d4f3c2a1-...`).
+3. The UUID is appended to the Stripe Payment Link URL as
+   `?client_reference_id=d4f3c2a1-...`
+4. User completes Stripe checkout.
+5. Stripe fires `checkout.session.completed` webhook to Make.com.
+6. The webhook payload contains `client_reference_id` = the UUID.
+7. Make.com constructs the Uploadcare CDN URL and downloads the file.
 
-1. File is uploaded to **temporary storage** BEFORE redirecting to Stripe.
-2. A unique file ID is stored and passed to Stripe as `metadata`.
-3. When the Stripe webhook fires, Make.com uses the file ID to retrieve it.
+**Uploadcare Setup (10 minutes):**
 
-**Temporary storage options (all free):**
+1. Sign up at **uploadcare.com** (free tier: 3,000 uploads/month).
+2. Create a new **Project** in the dashboard.
+3. Copy your **Public API Key** from the project's API Keys page.
+4. Paste it into `app.html` where it says `YOUR_UPLOADCARE_PUBLIC_KEY`.
+5. Check your CDN subdomain in **Dashboard → Delivery**.
+   - Older accounts: `ucarecdn.com`
+   - Newer accounts: `yourproject.ucarecd.net`
+   - Update the `UPLOADCARE_CDN` variable in `app.html` if needed.
 
-- **file.io** — Files auto-delete after first download. Free API.
-  Upload via `POST https://file.io` with the file as form data.
-  Returns a download URL.
+**In Make.com — wiring Module 2:**
 
-- **Uploadcare** — Free tier: 3,000 uploads/month.
-  Has a JavaScript widget you can embed directly in your page.
-  Returns a CDN URL for the file.
+1. Add an **HTTP → Get a File** module after the Stripe trigger.
+2. Set the URL to the Uploadcare CDN download path. You'll construct it
+   from the webhook data:
 
-- **Your own PythonAnywhere endpoint** — Add a `/upload` route to your
-  Flask app that stores files temporarily and returns an ID.
+   ```
+   https://ucarecdn.com/{{client_reference_id}}/
+   ```
 
-**Recommended: Uploadcare** (simplest integration with the frontend).
+   In Make.com's URL field, map it like this:
+   - Type: `https://ucarecdn.com/`
+   - Then click the `client_reference_id` field from the Stripe webhook
+     module's output (it's under the checkout session data)
+   - Append `/` at the end
 
-In Make.com:
-1. Add an **HTTP → Get a File** module.
-2. URL: The file URL from the Stripe webhook's `metadata.file_url` field.
-3. This downloads the PDF into the Make.com pipeline.
+   The full URL will resolve to something like:
+   `https://ucarecdn.com/d4f3c2a1-5b6e-7890-abcd-ef1234567890/`
+
+3. This downloads the PDF binary into the Make.com pipeline, ready
+   for the next module.
+
+**Note on file retention:** Uploadcare stores files indefinitely on the
+free tier (up to 3GB total storage). If you want to clean up old files,
+you can use their REST API or dashboard to delete files after processing.
+For an MVP this isn't a concern.
 
 #### Module 3: Call the Conversion API
 
 1. Add an **HTTP → Make a Request** module.
 2. Configure:
-   - URL: `https://yourusername.pythonanywhere.com/convert`
+   - URL: `https://YOUR-RAILWAY-URL.up.railway.app/convert`
    - Method: `POST`
    - Headers: `X-API-Key: your-secret-key`
    - Body type: `multipart/form-data`
@@ -300,14 +326,17 @@ In Make.com:
 ```
 1. User lands on atsready.co.uk
 2. Scrolls down, uploads their PDF resume
-3. File is uploaded to temporary storage (Uploadcare or file.io)
-4. User clicks "Convert Now — £7" button
-5. Stripe Checkout opens (supports card, Apple Pay, Google Pay)
-6. User pays → redirected to thank-you page
-7. Stripe webhook fires → Make.com scenario triggers
-8. Make.com downloads PDF → calls conversion API → gets .docx
-9. Make.com emails customer the .docx + ATS score
-10. Customer receives result in 2-5 minutes
+3. User clicks "Convert Now — £7"
+4. JavaScript uploads PDF to Uploadcare (1-2 seconds)
+5. Gets back a file UUID
+6. Redirects to Stripe Checkout with UUID as client_reference_id
+7. User pays (card, Apple Pay, Google Pay)
+8. Stripe webhook fires → Make.com scenario triggers
+9. Make.com reads client_reference_id (UUID) from webhook
+10. Make.com downloads PDF from Uploadcare CDN using the UUID
+11. Make.com sends PDF to Railway /convert endpoint → gets .docx
+12. Make.com emails customer the .docx + ATS score
+13. Customer receives result in 2-5 minutes
 ```
 
 ---
