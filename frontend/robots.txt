@@ -1,3 +1,5 @@
 User-agent: *
 Disallow: /apptest.html/
 Disallow: /app.html/
+Disallow: /contact.html/
+Disallow: /thankyou.html/

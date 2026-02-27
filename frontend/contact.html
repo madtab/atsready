@@ -13,8 +13,8 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATSReady — Thank you for your purchase</title>
-    <meta name="description" content="Stop getting auto-rejected by applicant tracking systems. ATSReady converts your resume into an ATS-friendly format in 60 seconds. Launching soon.">
+    <title>ATSReady — Contact Us</title>
+    <meta name="description" content="Get in touch with the ATSReady team. We're here to help with any questions about our ATS resume conversion service.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&display=swap" rel="stylesheet">
@@ -67,17 +67,6 @@
             color: inherit;
         }
 
-        a {
-            color: var(--sage);
-            text-decoration: underline;
-            text-decoration-color: var(--border);
-            text-underline-offset: 3px;
-            transition: text-decoration-color 0.2s;
-        }
-        a:hover {
-            text-decoration-color: var(--sage);
-        }
-
         h1 {
             font-family: 'Fraunces', serif;
             font-weight: 900;
@@ -101,34 +90,41 @@
             animation: fadeUp 0.6s ease-out 0.2s both;
         }
 
-        .email-form {
+        .contact-form {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 14px;
             max-width: 420px;
             width: 100%;
             animation: fadeUp 0.6s ease-out 0.3s both;
         }
 
-        .email-input {
-            flex: 1;
+        .form-input {
             padding: 14px 18px;
             border: 1.5px solid var(--border);
-            border-radius: 100px;
+            border-radius: 12px;
             font-family: 'DM Sans', sans-serif;
             font-size: 0.95rem;
             background: white;
             color: var(--ink);
             outline: none;
             transition: border-color 0.2s;
+            width: 100%;
         }
-        .email-input:focus {
+        .form-input:focus {
             border-color: var(--sage);
         }
-        .email-input::placeholder {
+        .form-input::placeholder {
             color: #b0afae;
         }
 
-        .notify-btn {
+        textarea.form-input {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .send-btn {
             padding: 14px 24px;
             background: var(--ink);
             color: white;
@@ -141,9 +137,14 @@
             transition: all 0.2s;
             white-space: nowrap;
         }
-        .notify-btn:hover {
+        .send-btn:hover {
             background: var(--sage);
             transform: translateY(-1px);
+        }
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .success-msg {
@@ -169,62 +170,55 @@
         }
 
         @media (max-width: 500px) {
-            .email-form {
-                flex-direction: column;
-            }
-            .notify-btn { width: 100%; }
+            .send-btn { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-
-
-
-
     <div class="logo"><a href="/"><span>ATSReady</span></a></div>
 
-    <h1>Thank you for your purchase</h1>
+    <h1>Get in <em>touch</em></h1>
 
-    <p class="subtitle">Your ATS ready resume should arrive in your inbox within the next few minutes.</p>
+    <p class="subtitle">Have a question or need help? Drop us a message and we'll get back to you as soon as we can.</p>
 
-    <p>If you don't receive it, please check your spam folder.</p>
-
-    <p>If you have any questions <a href="contact.html" target="_blank">please contact us</a>.</p>
-
-
-<!---
-    <div class="email-form" id="emailForm">
-        <input type="email" class="email-input" id="emailInput" placeholder="you@email.com" required>
-        <button class="notify-btn" onclick="handleNotify()">Notify me</button>
+    <div class="contact-form" id="contactForm">
+        <input type="text" class="form-input" id="nameInput" placeholder="Your name" required>
+        <input type="email" class="form-input" id="emailInput" placeholder="Your email" required>
+        <textarea class="form-input" id="messageInput" placeholder="Your message…" required></textarea>
+        <button class="send-btn" id="sendBtn" onclick="handleContact()">Send message</button>
     </div>
 
-    <p class="success-msg" id="successMsg">You're on the list. We'll be in touch.</p>-->
+    <p class="success-msg" id="successMsg">Message sent. We'll get back to you shortly.</p>
 
     <footer>&copy; 2026 ATSReady</footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    function handleNotify() {
-        const input = document.getElementById('emailInput');
-        const btn = document.querySelector('.notify-btn');
-        const email = input.value.trim();
+<script>
+    function handleContact() {
+        const name = document.getElementById('nameInput');
+        const email = document.getElementById('emailInput');
+        const message = document.getElementById('messageInput');
+        const btn = document.getElementById('sendBtn');
 
-        if (!email || !email.includes('@')) {
-            input.focus();
-            return;
-        }
+        if (!name.value.trim()) { name.focus(); return; }
+        if (!email.value.trim() || !email.value.includes('@')) { email.focus(); return; }
+        if (!message.value.trim()) { message.focus(); return; }
 
         btn.disabled = true;
         btn.textContent = 'Sending…';
 
-        fetch('https://formspree.io/f/meelreno', {
+        fetch('https://formspree.io/f/mbdapzjj', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({
+                name: name.value.trim(),
+                email: email.value.trim(),
+                message: message.value.trim()
+            })
         })
         .then(resp => {
             if (resp.ok) {
-                document.getElementById('emailForm').style.display = 'none';
+                document.getElementById('contactForm').style.display = 'none';
                 document.getElementById('successMsg').classList.add('visible');
             } else {
                 throw new Error('Form submission failed');
@@ -232,10 +226,16 @@
         })
         .catch(() => {
             btn.disabled = false;
-            btn.textContent = 'Notify me';
+            btn.textContent = 'Send message';
             alert('Something went wrong. Please try again.');
         });
     }
 
-    // Allow Enter key to submit
-    doc
+    // Allow Ctrl+Enter to submit from textarea
+    document.getElementById('messageInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleContact();
+    });
+</script>
+
+</body>
+</html>
