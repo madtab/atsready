@@ -41,16 +41,19 @@ ATS_PENALTIES = {
 
 SECTION_HEADINGS = [
     "experience", "work experience", "employment", "professional experience",
-    "education", "qualifications", "academic",
+    "professional career",
+    "education", "qualifications", "academic", "education history",
     "skills", "technical skills", "core competencies", "key skills",
+    "skills and interests", "areas of expertise",
     "summary", "profile", "personal statement", "objective", "about me", "about",
+    "executive summary", "my profile",
     "certifications", "certificates", "training",
     "projects", "portfolio",
     "achievements", "awards", "honours", "honors",
     "references", "referees",
     "languages", "interests", "hobbies", "volunteer", "volunteering",
     "publications", "research",
-    "contact", "contact information", "personal details",
+    "contact", "contact information", "contact details", "personal details",
 ]
 
 
@@ -129,41 +132,90 @@ def extract_text_from_pdf(pdf_path: str) -> str:
                 body_words = words  # fallback if very little body content
 
             # Find the column gap by analysing x-positions of body words
+            # Strategy: try candidate split points and find the one that
+            # gives the most balanced split with a clear gap between sides
             x_starts = sorted(set(round(w["x0"]) for w in body_words))
 
-            # Find the largest horizontal gap in the middle portion of the page
-            best_gap_pos = None
-            max_gap_size = 0
-
+            # Collect all gaps larger than 20px in the middle portion of the page
+            candidate_gaps = []
             for i in range(1, len(x_starts)):
                 gap_size = x_starts[i] - x_starts[i-1]
                 gap_center = (x_starts[i] + x_starts[i-1]) / 2
-                # Look for gaps in the middle 60% of the page
-                if (gap_size > max_gap_size and
-                        page_width * 0.20 < gap_center < page_width * 0.80):
-                    max_gap_size = gap_size
+                if (gap_size > 20 and
+                        page_width * 0.15 < gap_center < page_width * 0.80):
+                    candidate_gaps.append((gap_center, gap_size))
+
+            # Score each candidate: prefer gaps where both sides have
+            # substantial content (best balance)
+            best_gap_pos = None
+            best_score = 0
+
+            for gap_center, gap_size in candidate_gaps:
+                left_count = len([w for w in body_words if w["x0"] < gap_center])
+                right_count = len([w for w in body_words if w["x0"] >= gap_center])
+                total = left_count + right_count
+                if total == 0:
+                    continue
+                # Balance ratio: 0.5 = perfect split, 0 = all on one side
+                balance = min(left_count, right_count) / total
+                # Score combines balance (most important) with gap size
+                score = balance * 100 + gap_size * 0.1
+                if score > best_score and left_count > 5 and right_count > 5:
+                    best_score = score
                     best_gap_pos = gap_center
 
-            # It's two-column if there's a clear gap (at least 20px)
-            # and both sides have substantial content
+            # It's two-column if we found a good split point
             is_two_column = False
             col_boundary = page_width / 2
 
-            if best_gap_pos and max_gap_size > 20:
+            if best_gap_pos and best_score > 10:
                 col_boundary = best_gap_pos
-                left_count = len([w for w in body_words if w["x0"] < col_boundary])
-                right_count = len([w for w in body_words if w["x0"] >= col_boundary])
-
-                if left_count > 5 and right_count > 5:
-                    is_two_column = True
+                is_two_column = True
 
             if is_two_column:
-                # Extract header area (top 20%) separately without column split
-                header_words = sorted(
-                    [w for w in words if w["top"] <= body_y_start],
-                    key=lambda w: (round(w["top"], 1), w["x0"])
-                )
-                header_text = _words_to_text(header_words) if header_words else ""
+                # Check if header area also has two-column content
+                # by looking at whether individual lines cross the boundary
+                header_words = [w for w in words if w["top"] <= body_y_start]
+                if header_words:
+                    # Group header words by line (similar top position)
+                    header_lines = {}
+                    for w in header_words:
+                        line_key = round(w["top"], 0)
+                        if line_key not in header_lines:
+                            header_lines[line_key] = []
+                        header_lines[line_key].append(w)
+
+                    # Check if lines cross the column boundary
+                    # If any line has words on BOTH sides, header is full-width
+                    header_is_columnar = True
+                    for line_words in header_lines.values():
+                        has_left = any(w["x0"] < col_boundary - 10 for w in line_words)
+                        has_right = any(w["x0"] > col_boundary + 10 for w in line_words)
+                        if has_left and has_right:
+                            header_is_columnar = False
+                            break
+
+                    if header_is_columnar:
+                        header_left = sorted(
+                            [w for w in header_words if w["x0"] < col_boundary],
+                            key=lambda w: (round(w["top"], 1), w["x0"])
+                        )
+                        header_right = sorted(
+                            [w for w in header_words if w["x0"] >= col_boundary],
+                            key=lambda w: (round(w["top"], 1), w["x0"])
+                        )
+                        hl_text = _words_to_text(header_left)
+                        hr_text = _words_to_text(header_right)
+                        header_text = (hl_text + "\n" + hr_text).strip()
+                    else:
+                        # Header is full-width — read linearly
+                        all_header = sorted(
+                            header_words,
+                            key=lambda w: (round(w["top"], 1), w["x0"])
+                        )
+                        header_text = _words_to_text(all_header)
+                else:
+                    header_text = ""
 
                 # Split body words using detected boundary
                 body_left = sorted(
@@ -279,12 +331,14 @@ def detect_sections(text: str) -> list[dict]:
         lower = cleaned.lower().rstrip(":")
 
         # Check if this line is a section heading
+        # Headings must be short (under 40 chars) and match known patterns
         is_heading = False
-        for heading in SECTION_HEADINGS:
-            if lower == heading or lower.startswith(heading + " "):
-                is_heading = True
-                matched_heading = cleaned
-                break
+        if len(cleaned) <= 40:
+            for heading in SECTION_HEADINGS:
+                if lower == heading:
+                    is_heading = True
+                    matched_heading = cleaned
+                    break
 
         if is_heading:
             # Save previous section
@@ -466,16 +520,64 @@ def build_ats_docx(sections: list[dict], output_path: str, score_data: dict):
             # First section is the name/contact block
             lines = content_text.split("\n")
             if lines:
-                # Name line — large and bold
+                # Separate name lines from contact/detail lines
+                # Name lines: short, no contact info patterns, appear first
+                # Job title lines contain common role words
+                name_lines = []
+                detail_lines = []
+                found_detail = False
+
+                job_title_words = {
+                    'designer', 'developer', 'engineer', 'manager', 'director',
+                    'analyst', 'coordinator', 'specialist', 'consultant',
+                    'executive', 'assistant', 'administrator', 'intern',
+                    'officer', 'lead', 'senior', 'junior', 'associate',
+                    'architect', 'scientist', 'researcher', 'teacher',
+                    'professor', 'nurse', 'accountant', 'graphic', 'software',
+                    'marketing', 'sales', 'product', 'project', 'data',
+                    'creative', 'digital', 'technical', 'clinical',
+                }
+
+                for line in lines:
+                    stripped = line.strip()
+                    if not stripped:
+                        continue
+
+                    is_contact = bool(re.search(
+                        r'@|www\.|https?://|\.com|\.co\.uk|\+?\d[\d\s\-\(\)]{6,}',
+                        stripped
+                    ))
+                    is_address = bool(re.search(
+                        r'^\d+\s+\w+\s+(St|Street|Rd|Road|Ave|Avenue|Anywhere)',
+                        stripped, re.IGNORECASE
+                    ))
+                    words_lower = stripped.lower().split()
+                    is_job_title = any(w in job_title_words for w in words_lower)
+
+                    if found_detail or is_contact or is_address:
+                        found_detail = True
+                        detail_lines.append(stripped)
+                    elif is_job_title:
+                        detail_lines.append(stripped)
+                        found_detail = True
+                    elif len(stripped.split()) <= 4 and len(stripped) < 40:
+                        name_lines.append(stripped)
+                    else:
+                        detail_lines.append(stripped)
+
+                # Combine name lines into one (e.g. "JOHN" + "DOE" → "JOHN DOE")
+                full_name = " ".join(name_lines) if name_lines else lines[0]
+
+                # Name — large and bold
                 name_para = doc.add_paragraph()
                 name_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                name_run = name_para.add_run(lines[0])
+                name_run = name_para.add_run(full_name)
                 name_run.bold = True
                 name_run.font.size = Pt(18)
                 name_run.font.color.rgb = RGBColor(0x1A, 0x1A, 0x2E)
 
-                # Contact details
-                for line in lines[1:]:
+                # Contact/detail lines
+                for line in detail_lines:
                     contact_para = doc.add_paragraph()
                     contact_para.paragraph_format.space_before = Pt(1)
                     contact_para.paragraph_format.space_after = Pt(1)
